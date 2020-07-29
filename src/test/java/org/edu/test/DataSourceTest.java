@@ -37,29 +37,44 @@ public class DataSourceTest {
    public void testDeleteMember() throws Exception {
       memberService.deleteMember("user02");
    }
+   
    @Test
    public void testUpdateMember() throws Exception {
       MemberVO memberVO = new MemberVO();
       memberVO.setUser_id("user02");
       memberVO.setUser_pw("1234");
-      memberVO.setUser_name("고명학");
-      memberVO.setEmail("audgkr7836@naver.com");
+      memberVO.setUser_name("김보라");
+      memberVO.setEmail("kimbora@test.com");
       memberVO.setPoint(100);
       memberVO.setEnabled(true);
       memberVO.setLevels("ROLE_ADMIN");
       memberService.updateMember(memberVO);
-   	  }
+   }
+   
+   
+   @Test
+   public void testInsertMember() throws Exception {
+      MemberVO memberVO = new MemberVO();
+      memberVO.setUser_id("kimbora");
+      memberVO.setUser_pw("1234");
+      memberVO.setUser_name("김보라");
+      memberVO.setEmail("kimbora@test.com");
+      memberVO.setPoint(100);
+      memberVO.setEnabled(true);
+      memberVO.setLevels("ROLE_USER");
+      memberService.insertMember(memberVO);
+   }
    
    
    @Test
    public void testSelectMember() throws Exception {
       System.out.println("회원리스트 입니다.");
-      PageVO pageVO = new PageVO();
+      PageVO pageVO =  new PageVO();
       pageVO.setPage(1);
       pageVO.setPerPageNum(10);
-      List<MemberVO> list = memberService.selectMember(pageVO);
+      List<MemberVO> list =  memberService.selectMember(pageVO);
       System.out.println(list);
-     /* for(MemberVO vo:list) {
+    /*  for(MemberVO vo:list) {
          System.out.println("사용자아이디 : " + vo.getUser_id());
          System.out.println("사용자이메일 : " + vo.getEmail());
       }*/

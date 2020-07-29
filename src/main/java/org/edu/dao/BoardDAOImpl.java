@@ -78,5 +78,10 @@ public class BoardDAOImpl implements IF_BoardDAO {
 		
 	}
 
+	@Override
+	public void deleteBoardReply(Integer bno) throws Exception {
+		sqlSession.delete(mapperQuery + ".deleteBoardReply", bno);
+	}
+
 	
 }
