@@ -15,6 +15,9 @@ public class BoardVO {
    private Date update_date;
    private int view_count;
    private int reply_count;
+   private String bod_type;
+   
+   
    
    private String[] files;//첨부파일용 변수추가
    public Integer getBno() {
@@ -77,5 +80,11 @@ public class BoardVO {
    public void setFiles(String[] files) {
       this.files = files;
    }
+public String getBod_type() {
+	return bod_type;
+}
+public void setBod_type(String bod_type) {
+	this.bod_type = bod_type;
+}
 
 }

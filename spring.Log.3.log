@@ -1,11 +1,4 @@
-2020-07-29 17:16:40,673 DEBUG [org.springframework.test.context.web.ServletTestExecutionListener] Resetting RequestContextHolder for test context [DefaultTestContext@7d907bac testClass = DataSourceTest, testInstance = org.edu.test.DataSourceTest@3047254d, testMethod = testInsertMember@DataSourceTest, testException = org.springframework.dao.DuplicateKeyException: 
-### Error updating database.  Cause: java.sql.SQLIntegrityConstraintViolationException: ORA-00001: unique constraint (XE.MEMBER_PK) violated
-
-### The error may involve defaultParameterMap
-### The error occurred while setting parameters
-### SQL: insert into tbl_member (user_id,user_pw,user_name,email,point,enabled,levels,reg_date)        values (?,?,?,?,?,?,?,sysdate)
-### Cause: java.sql.SQLIntegrityConstraintViolationException: ORA-00001: unique constraint (XE.MEMBER_PK) violated
-
-; SQL []; ORA-00001: unique constraint (XE.MEMBER_PK) violated
-; nested exception is java.sql.SQLIntegrityConstraintViolationException: ORA-00001: unique constraint (XE.MEMBER_PK) violated
-, mergedContextConfiguration = [WebMergedContextConfiguration@7791a895 testClass = DataSourceTest, locations = '{file:src/main/webapp/WEB-INF/spring/**/*.xml}', classes = '{}', contextInitializerClasses = '[]', activeProfiles = '{}', propertySourceLocations = '{}', propertySourceProperties = '{}', contextCustomizers = set[[empty]], resourceBasePath = 'src/main/webapp', contextLoader = 'org.springframework.test.context.web.WebDelegatingSmartContextLoader', parent = [null]]].
+2020-07-29 17:28:49,585  INFO [jdbc.connection] 1. Connection closed  org.springframework.jdbc.datasource.DataSourceUtils.doCloseConnection(DataSourceUtils.java:348)
+2020-07-29 17:28:49,588 DEBUG [jdbc.connection] open connections:  none
+2020-07-29 17:28:49,588 DEBUG [jdbc.audit] 1. Connection.close() returned   org.springframework.jdbc.datasource.DataSourceUtils.doCloseConnection(DataSourceUtils.java:348)
+2020-07-29 17:28:49,588 DEBUG [org.springframework.test.context.support.AbstractDirtiesContextTestExecutionListener] After test method: context [DefaultTestContext@7d907bac testClass = DataSourceTest, testInstance = org.edu.test.DataSourceTest@3047254d, testMethod = testDeleteMember@DataSourceTest, testException = [null], mergedContextConfiguration = [WebMergedContextConfiguration@7791a895 testClass = DataSourceTest, locations = '{file:src/main/webapp/WEB-INF/spring/**/*.xml}', classes = '{}', contextInitializerClasses = '[]', activeProfiles = '{}', propertySourceLocations = '{}', propertySourceProperties = '{}', contextCustomizers = set[[empty]], resourceBasePath = 'src/main/webapp', contextLoader = 'org.springframework.test.context.web.WebDelegatingSmartContextLoader', parent = [null]]], class annotated with @DirtiesContext [false] with mode [null], method annotated with @DirtiesContext [false] with mode [null].

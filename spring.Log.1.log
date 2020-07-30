@@ -1,3 +1,4 @@
-2020-07-29 17:16:40,746 DEBUG [org.mybatis.spring.SqlSessionUtils] Creating a new SqlSession
-2020-07-29 17:16:40,755 DEBUG [org.mybatis.spring.SqlSessionUtils] SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@417c0bd4] was not registered for synchronization because synchronization is not active
-2020-07-29 17:16:40,755 DEBUG [org.mybatis.spring.SqlSessionUtils] Closing non transactional SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@417c0bd4]
+2020-07-29 17:28:49,625  INFO [org.springframework.web.context.support.GenericWebApplicationContext] Closing org.springframework.web.context.support.GenericWebApplicationContext@71bbf57e: startup date [Wed Jul 29 17:28:46 KST 2020]; root of context hierarchy
+2020-07-29 17:28:49,633 DEBUG [org.mybatis.spring.SqlSessionUtils] Creating a new SqlSession
+2020-07-29 17:28:49,634 DEBUG [org.mybatis.spring.SqlSessionUtils] SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@2894490a] was not registered for synchronization because synchronization is not active
+2020-07-29 17:28:49,634 DEBUG [org.mybatis.spring.SqlSessionUtils] Closing non transactional SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@2894490a]

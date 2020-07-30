@@ -30,6 +30,13 @@
                 </div>
                 <form action="/admin/board/list">
                 <div class="col-3" style="display:inline-block" >
+                    <select name="searchBoard" class="form-control">
+                       <option value="">게시판선택</option>
+                       <option value="notice">공지사항</option>
+                       <option value="gallery">갤러리</option>
+                    </select>
+                </div>
+                <div class="col-3" style="display:inline-block" >
                     <select name="searchType" class="form-control">
                        <option value="all">전체</option>
                     </select>
