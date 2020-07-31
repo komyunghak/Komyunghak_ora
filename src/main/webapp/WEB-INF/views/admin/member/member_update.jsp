@@ -78,7 +78,7 @@
                               </div>
                            </div>
                            <div class="form-group">
-                        <label>enabled == ${memberVO.enabled}</label>
+                        <label>enabled</label>
                         <select name="enabled" class="form-control">
                           <option value="0" <c:out value="${(memberVO.enabled eq 'false')?('selected'):''}" />
                           >
@@ -101,7 +101,7 @@
                         </div>
                         </div>
                         </div>
-                        <input type="hidden" name="page" value="${pageVO.page}" >
+                        <input type="hidden" name="page" value="${pageVO.page}">
                      </form>
                   </div>
                   <!-- /.content-header -->

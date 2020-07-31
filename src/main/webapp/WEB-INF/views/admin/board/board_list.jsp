@@ -3,7 +3,6 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <%@ include file="../include/header.jsp"  %>
-
 <!-- Content Wrapper. Contains page content -->
   <div class="content-wrapper">
     <!-- Content Header (Page header) -->
@@ -28,27 +27,28 @@
                 </div>
                 </div>
                 </div>
-                <form action="/admin/board/list">
-                <div class="col-3" style="display:inline-block" >
-                    <select name="searchBoard" class="form-control">
-                       <option value="">게시판선택</option>
-                       <option value="notice">공지사항</option>
-                       <option value="gallery">갤러리</option>
-                    </select>
-                </div>
-                <div class="col-3" style="display:inline-block" >
-                    <select name="searchType" class="form-control">
-                       <option value="all">전체</option>
-                    </select>
-                </div>
-                <div class="search" style="display:inline">
-				<input type="text" name="searchKeyword" placeholder="">
-				<div class="button" style="display:inline">
-				  <button>검색</button>
-					</div>
-                </div>
-                </form>
-    			</div>
+               <form action="/admin/board/list">
+               <div class="col-2" style="display:inline-block" >
+                <select name="searchBoard" class="form-control">
+                 <option value="">게시판선택</option>
+                 <option value="notice" <c:out value="${(session_bod_type eq 'notice')?('selected'):''}" />>공지사항</option>
+                 <option value="gallery" <c:out value="${(session_bod_type eq 'gallery')?('selected'):''}" />>갤러리</option>
+                </select>
+               </div>
+               <div class="col-2" style="display:inline-block" >
+                <select name="searchType" class="form-control">
+                 <option value="all">전체</option>
+                </select>
+               </div>
+               <div class="search" style="display:inline">
+            <input type="text" name="searchKeyword" placeholder="">
+            <div class="button" style="display:inline">
+             <button>검색</button>
+            </div>
+              </div>
+              </form>
+    
+</div>
         <div class="col-12">
             <div class="card">
               <div class="card-header">
@@ -69,45 +69,46 @@
                 <table class="table table-hover text-nowrap">
                   <thead>
                     <tr>
-                      <th>BNO</th>
+                      <th>RNUM</th>
                       <th>TITLE</th>
-                      <th>WRITE</th>
+                      <th>WRITER</th>
                       <th>REGDATE</th>
                       <th>VIEWCNT</th>
+                      <th>게시판타입</th>
                     </tr>
                   </thead>
                   <tbody>
                   <c:forEach items="${boardList}" var="boardVO" varStatus="status">
                   <tr>
-                      <td>${boardVO.bno}</td>
+                      <td>${boardVO.rnum}</td>
                       <td><a href="/admin/board/view?bno=${boardVO.bno}&page=${pageVO.page}">${boardVO.title}</a></td>
                       <td>${boardVO.writer}</td>
                       <td><span class="tag tag-success">
-                      <fmt:formatDate pattern="yyyy-MM-dd HH:mm" value="${boardVO.regdate}" />
+                      <fmt:formatDate pattern="yyyy-MM-dd HH:mm" value="${boardVO.regdate}"/>
                       </span></td>
                       <td><span class="badge badge-danger right">${boardVO.view_count}</span></td>
+                      <td>${boardVO.bod_type}</td>
                     </tr>
                   </c:forEach>  
                   </tbody>
-            <td> 
-            <a href="/admin/board/write" class="btn btn-primary">CREATE</a>
+            <td> <a href="/admin/board/write"  class="btn btn-primary">CREATE</a>
                </td>
            <td>
               <nav aria-label="Contacts Page Navigation">
             <ul class="pagination" style="position:relative;left:40%;">
             <c:if test="${pageVO.prev}">
-            	<li class="page-item">
-            	<a class="page-link" href="/admin/board/list?page=${pageVO.startPage-1}"&searchType=${pageVO.searchType}&searchKeyword=${pageVO.searchKeyword}>이전</a>
-            	</li>
-            	</c:if>
+               <li class="page-item">
+               <a class="page-link" href="/admin/board/list?page=${pageVO.startPage-1}&searchType=${pageVO.searchType}&searchKeyword=${pageVO.searchKeyword}">이전</a>
+               </li>
+               </c:if>
             <c:forEach begin="${pageVO.startPage}" end="${pageVO.endPage}" var="idx">
-            	<li class='page-item <c:out value="${idx==pageVO.page?'active':''}"/>'><a href="/admin/board/list?page=${idx}&searchType=${pageVO.searchType}&searchKeyword=${pageVO.searchKeyword}" class="page-link">${idx}</a></li>
+               <li class='page-item <c:out value="${idx==pageVO.page?'active':''}"/>'><a href="/admin/board/list?page=${idx}&searchType=${pageVO.searchType}&searchKeyword=${pageVO.searchKeyword}" class="page-link">${idx}</a></li>
             </c:forEach>
              <c:if test="${pageVO.next}">
-            	<li class="page-item">
-            	<a class="page-link" href="/admin/board/list?page=${pageVO.endPage+1}"&searchType=${pageVO.searchType}&searchKeyword=${pageVO.searchKeyword}>다음</a>
-            	</li>
-            	</c:if>
+               <li class="page-item">
+               <a class="page-link" href="/admin/board/list?page=${pageVO.endPage+1}&searchType=${pageVO.searchType}&searchKeyword=${pageVO.searchKeyword}">다음</a>
+               </li>
+               </c:if>
              </ul>
           </nav>
                </td>
