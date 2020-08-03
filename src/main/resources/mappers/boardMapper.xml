@@ -126,4 +126,21 @@ where ROWNUM = 1
    <insert id="updateAttach">
    insert into tbl_attach(full_name, bno) values (#{fullname}, #{bno})
    </insert>
+   <!-- 게시판 생성(아래) -->
+   <select id="selectBoardType" resultType="org.edu.vo.BoardTypeVO">
+   select * from tbl_board_type order by bod_sun asc
+   </select>
+   <insert id="insertBoatdType">
+   		insert into tbl_board_type(bod_type, bod_name, bod_sun) values(#{bod_type}, #{bod_name},#{bod_sun})
+   </insert>
+   <update id="updateBoardType">
+   		update tbl_board_type set
+   		bod_name = #{bod_name},
+   		bod_sun = #{bod_sun}
+   		where bod_type = #{bod_type}
+   </update>
+   <delete id="deleteBoardType">
+   		delete from tbl_board_type where bod_type = #{bod_type}
+   </delete>
+   
 </mapper>

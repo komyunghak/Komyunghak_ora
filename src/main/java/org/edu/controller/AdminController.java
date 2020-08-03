@@ -16,6 +16,7 @@ import javax.validation.Valid;
 import org.edu.service.IF_BoardService;
 import org.edu.service.IF_MemberService;
 import org.edu.util.FileDataUtil;
+import org.edu.vo.BoardTypeVO;
 import org.edu.vo.BoardVO;
 import org.edu.vo.MemberVO;
 import org.edu.vo.PageVO;
@@ -46,7 +47,19 @@ public class AdminController {
    
    @Inject
    private FileDataUtil fileDataUtil;
- 
+   
+   /**
+    * 게시판 생성 리스트 입니다.
+    * @throws Exception 
+    */
+   @RequestMapping(value = "/bodtype/list", method = RequestMethod.GET)
+   public String bodTypeList(Locale locale, Model model) throws Exception {
+	  List<BoardTypeVO> list = boardService.selectBoardType();
+      model.addAttribute("boardTypeList", list);
+	  
+      return "admin/bodtype/bodtype_list";
+   }
+   
    /**
     * 게시물관리 리스트 입니다.
     * @throws Exception 
