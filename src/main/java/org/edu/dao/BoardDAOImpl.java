@@ -108,12 +108,17 @@ public void deleteBoardType(String bod_type) throws Exception {
 
 @Override
 public void updateBoardType(BoardTypeVO boardTypeVO) throws Exception {
-	sqlSession.update(mapperQuery + "updateBoardType", boardTypeVO);
+	sqlSession.update(mapperQuery + ".updateBoardType", boardTypeVO);
 }
 
 @Override
 public void insertBoardType(BoardTypeVO boardTypeVO) throws Exception {
-	sqlSession.insert(mapperQuery + "insertBoardType", boardTypeVO);
+	sqlSession.insert(mapperQuery + ".insertBoardType", boardTypeVO);
+}
+
+@Override
+public BoardTypeVO viewBoardType(String bod_type) throws Exception {
+	return sqlSession.selectOne(mapperQuery + ".viewBoardType", bod_type);
 }
 
 

@@ -47,16 +47,74 @@ public class AdminController {
    
    @Inject
    private FileDataUtil fileDataUtil;
+   /**
+    * 게시판생성 insert 입니다.
+    * @throws Exception 
+    */
+   @RequestMapping(value = "/bodtype/write", method = RequestMethod.GET)
+   public String bodTypeInsert(Locale locale, Model model) throws Exception {
+
+      return "admin/bodtype/bodtype_insert";
+   }
    
    /**
-    * 게시판 생성 리스트 입니다.
+    * 게시판생성 Insert 입니다.
+    * @throws Exception 
+    */
+   @RequestMapping(value = "/bodtype/write", method = RequestMethod.POST)
+   public String bodTypeInsert(BoardTypeVO boardTypeVO, Locale locale, RedirectAttributes rdat) throws Exception {
+      boardService.insertBoardType(boardTypeVO);
+      rdat.addFlashAttribute("msg", "입력");
+      return "redirect:/admin/bodtype/list";
+   }
+   /**
+    * 게시판생성 수정 입니다.
+    * @throws Exception 
+    */
+   @RequestMapping(value = "/bodtype/update", method = RequestMethod.GET)
+   public String bodTypeUpdate(@RequestParam("bod_type") String bod_type, Locale locale, Model model) throws Exception {
+      BoardTypeVO boardTypeVO = boardService.viewBoardType(bod_type);
+      model.addAttribute("bodTypeVO", boardTypeVO);
+      //{'notice','공지사항',1}
+      return "admin/bodtype/bodtype_update";
+   }
+   
+   /**
+    * 게시판생성 수정 입니다.
+    * @throws Exception 
+    */
+   @RequestMapping(value = "/bodtype/update", method = RequestMethod.POST)
+   public String bodTypeUpdate(BoardTypeVO boardTypeVO, Locale locale, RedirectAttributes rdat) throws Exception {
+      boardService.updateBoardType(boardTypeVO);
+      rdat.addFlashAttribute("msg", "수정");
+      return "redirect:/admin/bodtype/list";
+   }
+   
+   /**
+    * 게시판생성 삭제 입니다.
+    * @throws Exception 
+    */
+   @RequestMapping(value = "/bodtype/delete", method = RequestMethod.POST)
+   public String bodTypeDelete(BoardTypeVO boardTypeVO, Locale locale, RedirectAttributes rdat) throws Exception {
+      boardService.deleteBoardType(boardTypeVO.getBod_type());
+      rdat.addFlashAttribute("msg", "삭제");
+      return "redirect:/admin/bodtype/list";
+   }
+   
+   /**
+    * 게시물생성 리스트 입니다.
     * @throws Exception 
     */
    @RequestMapping(value = "/bodtype/list", method = RequestMethod.GET)
    public String bodTypeList(Locale locale, Model model) throws Exception {
-	  List<BoardTypeVO> list = boardService.selectBoardType();
-      model.addAttribute("boardTypeList", list);
-	  
+      List<BoardTypeVO> list = boardService.selectBoardType();
+      model.addAttribute("bodTypeList", list);
+      /*List<BoardTypeVO> list -> jsp쪽 boardTypeList; 이 데이터가 아래처럼 구성.
+       [
+       {'notice','공지사항',1}
+       {'gallery','커뮤니티',2}
+       ] 
+       */
       return "admin/bodtype/bodtype_list";
    }
    
@@ -66,17 +124,16 @@ public class AdminController {
     */
    @RequestMapping(value = "/board/list", method = RequestMethod.GET)
    public String boardList(@ModelAttribute("pageVO") PageVO pageVO , Locale locale, Model model, HttpServletRequest request) throws Exception {
-     //초기 메뉴를 클릭시 /admin/board/list?searchBoard=notice 데이터전송
-	   HttpSession session = request.getSession();
-	   if(pageVO.getSearchBoard() != null) {
-		   //최초 세션 만들어짐
-		   session.setAttribute("session_bod_type", pageVO.getSearchBoard());
-     }else {
-    	 //일반링크 클릭시 /admin/board/view?page=2... 데이터 전송
-    	 //만들어진 세션 사용(아래)
-	   	 pageVO.setSearchBoard((String) session.getAttribute("session_bod_type"));
-     }
-	 //PageVO pageVO = new PageVO();//매개변수로 받기전에 테스트용
+       //초기 메뉴를 클릭시 /admin/board/list?searchBoard=notice 데이터 전송
+      HttpSession session = request.getSession();
+      if(pageVO.getSearchBoard() != null) {          
+          session.setAttribute("session_bod_type", pageVO.getSearchBoard());
+       }else {
+          //일반링크 클릭시 /admin/board/view?page=2...데이터 전송
+          //만들어진 세션 사용(아래)
+          pageVO.setSearchBoard((String) session.getAttribute("session_bod_type"));
+       }
+      //PageVO pageVO = new PageVO();//매개변수로 받기전에 테스트용
      if(pageVO.getPage() == null) { //초기 page변수값 지정
         pageVO.setPage(1);
      } 

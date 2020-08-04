@@ -1,8 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<%@ include file="../include/header.jsp"  %>
-
+<%@ include file="../include/header.jsp" %>
 <!-- Content Wrapper. Contains page content -->
       <div class="content-wrapper">
          <!-- Content Header (Page header) -->
@@ -32,41 +31,49 @@
                   </div>
                   <!-- /.card-header -->
                   <div class="card-body">
-                      <form role="form" action="/admin/board/update" method="post" encType="multipart/form-data">
-                        <div class="row">
-                           <div class="col-sm-12">
-                           	<div class="col-sm-12">
-                              <!-- select option -->
-                              <div class="form-group">
-                                 <label>게시판선택</label> 
-                                 <select name="bod_type" class="form-control" required>
-					                <option value="">게시판선택</option>
-					                <option value="notice" <c:out value="${(boardVO.bod_type eq 'notice')?('selected'):''}" />>공지사항</option>
-					                <option value="gallery" <c:out value="${(boardVO.bod_type eq 'gallery')?('selected'):''}" />>갤러리</option>
-					               </select>
-                              </div>
-                           </div>
-                              <!-- text input -->
-                              <div class="form-group">
-                                 <label>Title</label> 
-                                 <input value="${boardVO.title}" name="title" type="text" class="form-control"
-                                    placeholder="Enter Title">
-                              </div>
-                           </div>
-                           <div class="col-sm-12">
-                              <div class="form-group">
-                                 <label>Content</label> 
-                                 <textarea name="content" class="form-control" rows="3"
-                                    placeholder="Enter Writer">${boardVO.content}</textarea>
-                              </div>
-                           </div>
+                     <form role="form" action="/admin/board/update" method="post" encType="multipart/form-data">
+                  <div class="row">
+                     <div class="col-sm-12">
+                        <!-- select option -->
+                        <div class="form-group">
+                           <label>게시판선택</label>
+                           <div class="app_content">
+                           <div class="select_common"> 
+                           <select name="bod_type"class="form-control" required>
+                              <option value="">게시판선택</option>
+                              <c:forEach items="${boardTypeMenu}" var="boardTypeMenu">
+                                             <option value="${boardTypeMenu.bod_type}" <c:out value="${(boardVO.bod_type eq boardTypeMenu.bod_type)?('selected'):('')}" />>${boardTypeMenu.bod_name}</option>
+                                          </c:forEach>
+                              <%-- <option value="notice"
+                                 <c:out value="${(boardVO.bod_type eq 'notice')?('selected'):''}" />>공지사항</option>
+                              <option value="gallery"
+                                 <c:out value="${(boardVO.bod_type eq 'gallery')?('selected'):''}" />>갤러리</option> --%>
+                           </select>
                         </div>
-                        <div class="row">
+                        </div>
+                     </div>
+                     <div class="col-sm-12">
+                        <!-- text input -->
+                        <div class="form-group">
+                           <label>Title</label> <input value="${boardVO.title}"
+                              name="title" type="text" class="form-control"
+                              placeholder="Enter Title">
+                        </div>
+                     </div>
+                     <div class="col-sm-12">
+                        <div class="form-group">
+                           <label>Content</label>
+                           <textarea name="content" class="form-control" rows="3"
+                              placeholder="Enter Writer">${boardVO.content}</textarea>
+                        </div>
+                     </div>
+                  </div>
+                  <div class="row">
                            <div class="col-sm-12">
                               <!-- textarea -->
                               <div class="form-group">
                                  <label>Writer</label>
-                                 <input value="${boardVO.writer}" type="text" name="writer"
+                                 <input value="${boardVO.writer}" name="writer" type="text"
                                     class="form-control" placeholder="Enter ...">
                               </div>
                            </div>
@@ -90,8 +97,8 @@
                                  </div>
                               </div>
                               <div class="buttons">
-                                  <input type="hidden" name="bno" value="${boardVO.bno}">
-                                  <input type="hidden" name="page" value="${pageVO.page}">
+                                 <input type="hidden" name="bno" value="${boardVO.bno}">
+                                 <input type="hidden" name="page" value="${pageVO.page}">
                                  <button type="submit" class="btn btn-warning">Submit</button>
                                  <a href="/admin/board/list?page=${pageVO.page}" class="btn btn-primary">LIST ALL</a>
                               </div>
@@ -105,9 +112,9 @@
                   <div class="content"></div>
                   <!-- .content  -->
                </div>
+               
             </div>
          </div>
       </div>
-      <!-- /content w -->
-      
-<%@ include file="../include/footer.jsp"  %>
+      <!-- ./Content Wrapper -->
+<%@ include file="../include/footer.jsp" %> 
