@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
+import org.apache.catalina.Session;
 import org.edu.service.IF_BoardService;
 import org.edu.service.IF_MemberService;
 import org.edu.util.FileDataUtil;
@@ -21,10 +22,11 @@ import org.edu.vo.MemberVO;
 import org.edu.vo.PageVO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.core.Authentication;//아이디 암호체크명령어
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;//사용자 상세정보 가져오는소스
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -52,66 +54,135 @@ public class HomeController {
    private static final Logger logger = LoggerFactory.getLogger(HomeController.class);
    
    /**
-    * 게시물관리 > 삭제 입니다.
+    * 회원관리 > 등록 입니다.
     * @throws Exception 
     */
+   @RequestMapping(value = "/mypage/insert", method = RequestMethod.GET)
+   public String memberWrite(Locale locale, Model model) throws Exception {
+      
+      return "mypage/mypage_insert";
+   }
+   @RequestMapping(value = "/mypage/insert", method = RequestMethod.POST)
+   public String memberWrite(@Valid MemberVO memberVO, Locale locale, RedirectAttributes rdat) throws Exception {
+      String new_pw = memberVO.getUser_pw(); //1234
+      if(new_pw !="") {
+       //스프링 시큐리티 4.x BCryptPasswordEncoder 암호화 사용
+           BCryptPasswordEncoder bcryptPasswordEncoder = new BCryptPasswordEncoder(10);
+           String bcryptPassword = bcryptPasswordEncoder.encode(new_pw);//예, 1234 -> 암호화 처리됨
+           memberVO.setUser_pw(bcryptPassword); //DB에 들어가기전 값 set 시킴   
+    }     memberService.insertMember(memberVO);
+      rdat.addFlashAttribute("msg", "회원가입");
+      return "redirect:/";
+   }
+   
+   /**
+    * 회원관리 > 수정 입니다.
+    * @throws Exception 
+    */
+   @RequestMapping(value = "/mypage/update", method = RequestMethod.GET)
+   public String memberUpdate(HttpServletRequest request, Locale locale, Model model) throws Exception {
+      HttpSession session = request.getSession();
+      MemberVO memberVO = memberService.viewMember((String) session.getAttribute("session_userid"));
+      model.addAttribute("memberVO", memberVO);
+      return "mypage/mypage_update";
+   }
+   @RequestMapping(value = "/mypage/update", method = RequestMethod.POST)
+   public String memberUpdate(MemberVO memberVO, Locale locale, RedirectAttributes rdat) throws Exception {
+      String new_pw = memberVO.getUser_pw(); //예를 들면1234
+      if(new_pw !="") {
+       //스프링 시큐리티 4.x BCryptPasswordEncoder 암호사용
+           BCryptPasswordEncoder bcryptPasswordEncoder = new BCryptPasswordEncoder(10);
+           String bcryptPassword = bcryptPasswordEncoder.encode(new_pw);//예, 1234 -> 암호화 처리됨
+           memberVO.setUser_pw(bcryptPassword); //DB에 들어가기전 값 set 시킴   
+    }
+     memberService.updateMember(memberVO);
+      rdat.addFlashAttribute("msg", "회원정보 수정");
+      return "redirect:/mypage/update";
+   }
+   
+   /**
+    * 회원관리 > 회원탈퇴 입니다.
+    * @throws Exception 
+    */
+   @RequestMapping(value = "/mypage/delete", method = RequestMethod.POST)
+   public String memberDelete(MemberVO memberVO, Locale locale, RedirectAttributes rdat) throws Exception {
+         String new_pw = memberVO.getUser_pw(); //예를 들면1234
+         if(new_pw !="") {
+          //스프링 시큐리티 4.x BCryptPasswordEncoder 암호사용
+              BCryptPasswordEncoder bcryptPasswordEncoder = new BCryptPasswordEncoder(10);
+              String bcryptPassword = bcryptPasswordEncoder.encode(new_pw);//예, 1234 -> 암호화 처리됨
+              memberVO.setUser_pw(bcryptPassword); //DB에 들어가기전 값 set 시킴   
+       } 
+         memberVO.setEnabled(false); //회원정보 사용중지 아이디 지정
+         memberService.updateMember(memberVO);
+         rdat.addFlashAttribute("msg", "회원정보 수정");
+         return "redirect:/logout";
+      }
+   
+   /**
+    * 게시물관리 > 삭제 입니다.
+    * 
+    * @throws Exception
+    */
    @RequestMapping(value = "/board/delete", method = RequestMethod.POST)
-   public String boardDelete(@RequestParam("bno") Integer bno, Locale locale, RedirectAttributes rdat) throws Exception {
+   public String boardDelete(@RequestParam("bno") Integer bno, Locale locale, RedirectAttributes rdat)
+         throws Exception {
       List<String> files = boardService.selectAttach(bno);
-      
       boardService.deleteBoard(bno);
-      
-      //첨부파일 삭제(아래)
-      for(String fileName : files) {
-         //삭제 명령문 추가(아래)
+      // 첨부파일 삭제(아래)
+      for (String fileName : files) {
+         // 삭제 명령문 추가(아래)
          File target = new File(fileDataUtil.getUploadPath(), fileName);
-         if(target.exists()) {
+         if (target.exists()) {
             target.delete();
          }
-      }      
-      
+      }
+
       rdat.addFlashAttribute("msg", "삭제");
       return "redirect:/board/list";
    }
    
-   
-   
-   
    /**
     * 게시물관리 > 수정 입니다.
-    * @throws Exception 
+    * 
+    * @throws Exception
     */
    @RequestMapping(value = "/board/update", method = RequestMethod.GET)
-   public String boardUpdate(@ModelAttribute("pageVO") PageVO pageVO, @RequestParam("bno") Integer bno, Locale locale, Model model) throws Exception {
+   public String boardUpdate(@ModelAttribute("pageVO") PageVO pageVO, @RequestParam("bno") Integer bno, Locale locale,
+         Model model) throws Exception {
       BoardVO boardVO = boardService.viewBoard(bno);
       model.addAttribute("boardVO", boardVO);
       model.addAttribute("pageVO", pageVO);
-      return "board/board_update";
+      return "/board/board_update";
    }
+
    @RequestMapping(value = "/board/update", method = RequestMethod.POST)
-   public String boardUpdate(@ModelAttribute("pageVO") PageVO pageVO, MultipartFile file,@Valid BoardVO boardVO,Locale locale, RedirectAttributes rdat) throws Exception {
-      if(file.getOriginalFilename() == "") {//조건:첨부파일 전송 값이 없다면
+   public String boardUpdate(@ModelAttribute("pageVO") PageVO pageVO, MultipartFile file, @Valid BoardVO boardVO,
+         Locale locale, RedirectAttributes rdat) throws Exception {
+      if (file.getOriginalFilename() == "") {
          boardService.updateBoard(boardVO);
       } else {
-         //기존등록된 첨부파일 삭제처리(아래)
+         // 이전 첨부파일 삭제처리(아래)
          List<String> delFiles = boardService.selectAttach(boardVO.getBno());
-         for(String fileName : delFiles) {
-            //실제파일 삭제
+         for (String fileName : delFiles) {
+            // 실제파일삭제
             File target = new File(fileDataUtil.getUploadPath(), fileName);
-            if(target.exists()) { //조건:해당경로에 파일명이 존재하면
-               target.delete();  //파일삭제
-            }//End if
-         }//End for
-         //아래 신규파일 업로드
-         String[] files = fileDataUtil.fileUpload(file);//실제파일업로드후 파일명 리턴
-         boardVO.setFiles(files);//데이터베이스 <-> VO(get,set) <-> DAO클래스
+            if (target.exists()) { // 해당경로에 파일명이 존재한다면
+               target.delete(); // 파일을 삭제하겠다
+            } // end if
+         } // end for
+            // 아래에서 부터 신규 파일 업로드
+         String[] files = fileDataUtil.fileUpload(file); // 실제파일업로드후 파일명 리턴
+         boardVO.setFiles(files); // 데이터베이스 <-> vo(get,set) -dao클래스
          boardService.updateBoard(boardVO);
-      }//End if
-      
-      
+      }
+
       rdat.addFlashAttribute("msg", "수정");
       return "redirect:/board/view?bno=" + boardVO.getBno() + "&page=" + pageVO.getPage();
    }
+
+   
+   
    
    
    /**
@@ -124,18 +195,17 @@ public class HomeController {
       return "board/board_write";
    }
    @RequestMapping(value = "/board/write", method = RequestMethod.POST)
-  public String boardWrite(MultipartFile file,@Valid BoardVO boardVO,Locale locale, RedirectAttributes rdat) throws Exception {
-  
-      //System.out.println("==첨부파일없이 저장==="file.getOriginalFilename());{
-         if(file.getOriginalFilename() =="") {
-            //첨부파일 없이 저장
-            boardService.insertBoard(boardVO);
+   public String boardWrite(MultipartFile file,@Valid BoardVO boardVO,Locale locale, RedirectAttributes rdat) throws Exception {
+      //System.out.println("========첨부파일없이 저장===" + file.getOriginalFilename());
+      if(file.getOriginalFilename() == "") {
+         //첨부파일 없이 저장
+         boardService.insertBoard(boardVO);
       }else {
-        String[] files = fileDataUtil.fileUpload(file);
-        boardVO.setFiles(files); //셋으로 파일을 저장했기때문에 보낼 수 있음.
-         boardService.insertBoard(boardVO);      
+         String[] files = fileDataUtil.fileUpload(file);
+         boardVO.setFiles(files);
+         boardService.insertBoard(boardVO);         
       }
-       rdat.addFlashAttribute("msg", "입력");
+      rdat.addFlashAttribute("msg", "입력");
       return "redirect:/board/list";
    }
    
@@ -144,65 +214,51 @@ public class HomeController {
     * @throws Exception 
     */
    @RequestMapping(value = "/board/view", method = RequestMethod.GET)
-      public String boardView(@ModelAttribute("pageVO") PageVO pageVO,@RequestParam("bno") Integer bno,Locale locale, Model model, HttpServletRequest request) throws Exception {
-	   HttpSession session = request.getSession(); //세션을 초기화 시켜줌 if문에 사용하기 위해 밖으로 빼서 선언
-	      if(pageVO.getSearchBoard() != null) {
-	         //최초 세션 만들어짐 
-	         session.setAttribute("session_bod_type", pageVO.getSearchBoard());
-	      }else {
-	         //일반링크 클릭시 /admin/board/view?page=2... 데이터 전송
-	         //만들어진 세션을 사용
-	         pageVO.setSearchBoard((String) session.getAttribute("session_bod_type"));
-	      }
-	   BoardVO boardVO = boardService.viewBoard(bno);
-         // 여기서 부터 첨부파일 출력물
-         List<String> files = boardService.selectAttach(bno);
-         String[] filenames = new String[files.size()];
-         int cnt=0;
-         for(String fileName:files) {
-            filenames[cnt++] = fileName;
-         }
-
-         //여러개 파일에서 1개 파일만 받는 것으로 변경
-         
-         //String[] filenames = new String[] {files};
-        boardVO.setFiles(filenames); //String[]
-        
-         model.addAttribute("boardVO", boardVO);
-         model.addAttribute("PageVO", pageVO);
-         model.addAttribute("extNameArray", fileDataUtil.getExtNameArray());
-         return "board/board_view";
-         
+   public String boardView(@ModelAttribute("pageVO") PageVO pageVO, @RequestParam("bno") Integer bno,Locale locale, Model model) throws Exception {
+      BoardVO boardVO = boardService.viewBoard(bno);
+      //여기서 부터 첨부파일명 때문에 추가
+      List<String> files = boardService.selectAttach(bno);
+      String[] filenames = new String[files.size()];
+      int cnt = 0;
+      for(String fileName : files) {
+         filenames[cnt++] = fileName;
+      }
+      //여러개 파일에서 1개 파일만 받는 것으로 변경
+      //String[] filenames = new String[] {files};
+      boardVO.setFiles(filenames);//String[]
+      //여기까지 첨부파일때문에 추가
+      model.addAttribute("boardVO", boardVO);
+      model.addAttribute("pageVO", pageVO);
+      model.addAttribute("extNameArray", fileDataUtil.getExtNameArray());
+      return "board/board_view";
    }
-   
    
    /**
     * 게시물관리 리스트 입니다.
     * @throws Exception 
     */
    @RequestMapping(value = "/board/list", method = RequestMethod.GET)
-   public String boardList(@ModelAttribute("pageVO") PageVO pageVO , Locale locale, Model model, HttpServletRequest request) throws Exception {
-      HttpSession session = request.getSession(); //세션을 초기화 시켜줌 if문에 사용하기 위해 밖으로 빼서 선언
+   public String boardList(@ModelAttribute("pageVO") PageVO pageVO, HttpServletRequest request, Locale locale, Model model) throws Exception {
+      HttpSession session = request.getSession();
       if(pageVO.getSearchBoard() != null) {
-         //최초 세션 만들어짐 
+         
          session.setAttribute("session_bod_type", pageVO.getSearchBoard());
       }else {
-         //일반링크 클릭시 /admin/board/view?page=2... 데이터 전송
-         //만들어진 세션을 사용
+        
          pageVO.setSearchBoard((String) session.getAttribute("session_bod_type"));
       }
       
-      //PageVO pageVO = new PageVO();//매개변수로 받기전에 테스트용
-     if(pageVO.getPage() == null) { //초기 page변수값 지정
-        pageVO.setPage(1);
-     } 
-      pageVO.setPerPageNum(10); //1페이지당 보여줄 게시물 수 강제지정 
+      //PageVO pageVO = new PageVO();//매개변수로 받기전 테스트용
+      if(pageVO.getPage() == null) {
+         pageVO.setPage(1);//초기 page변수값 지정
+      }
+      pageVO.setPerPageNum(10);//1페이지당 보여줄 게시물 수 강제지정
       pageVO.setTotalCount(boardService.countBno(pageVO));//강제로 입력한 값을 쿼리로 대체OK.
       List<BoardVO> list = boardService.selectBoard(pageVO);
       //모델클래스로 jsp화면으로 boardService에서 셀렉트한 list값을 boardList변수명으로 보낸다.
       //model { list -> boardList -> jsp }
       model.addAttribute("boardList", list);
-      model.addAttribute("pageVO" , pageVO);
+      model.addAttribute("pageVO", pageVO);
       return "board/board_list";
    }
    
@@ -217,20 +273,20 @@ public class HomeController {
    @RequestMapping(value = "/login_success", method = RequestMethod.GET)
    public String login_success(Locale locale,HttpServletRequest request, RedirectAttributes rdat) throws Exception {
       logger.info("Welcome login_success! The client locale is {}.", locale);
-      Authentication authentication = SecurityContextHolder.getContext().getAuthentication();//겟 컨테스트(컨텐츠를 가져오는 소스)
+      Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
       String userid = "";//아이디
-      String levels = "";//ROLE_ANONYMOUS    
-      Boolean enabled = false;//비활성화 유저들은 enabled가 되어 비회원으로 변경
-      Object principal = authentication.getPrincipal();//중요한
-      if (principal instanceof UserDetails) {//userDetails에 아이디 암호가 보내지면 인증
+      String levels = "";//ROLE_ANONYMOUS
+      Boolean enabled = false;
+      Object principal = authentication.getPrincipal();
+      if (principal instanceof UserDetails) {
          //인증이 처리되는 로직(아이디,암호를 스프링시큐리티 던져주고 인증은 스프링에서 알아서 해줌.)
          enabled = ((UserDetails)principal).isEnabled();
       }
-      HttpSession session = request.getSession();
-      if (enabled) {//인증처리가 완료된 사용자의 권한체크(아래)
+      HttpSession session = request.getSession();//세션을 초기화 시켜줌.
+      if (enabled) { //인증처리가 완료된 사용자의 권한체크(아래)
          Collection<? extends GrantedAuthority>  authorities = authentication.getAuthorities();
          if(authorities.stream().filter(o -> o.getAuthority().equals("ROLE_ANONYMOUS")).findAny().isPresent())
-         {levels = "ROLE_ANONYMOUS";}//비회원(로그인 하지않은 일반접속자)
+         {levels = "ROLE_ANONYMOUS";}
          if(authorities.stream().filter(o -> o.getAuthority().equals("ROLE_USER,")).findAny().isPresent())
          {levels = "ROLE_USER,";}
          if(authorities.stream().filter(o -> o.getAuthority().equals("ROLE_ADMIN")).findAny().isPresent())
@@ -238,11 +294,10 @@ public class HomeController {
          userid =((UserDetails)principal).getUsername();
          //로그인 세션 저장
          session.setAttribute("session_enabled", enabled);//인증확인
+         session.setAttribute("session_userid", userid);//사용자아이디
          session.setAttribute("session_levels", levels);//사용자권한
-         session.setAttribute("session_userid", userid);//사용자권한
-         
-         //===============상단은 스프링시큐리티에서 기본제공하는 변수처리
-         //===============하단은 우리가 추가하는 세션변수처리
+         //=========== 상단은 스프링시큐리티에서 기본제공하는 세션 변수처리
+         //=========== 하단은 우리가 추가한는 세션 변수처리
          //회원이름 구하기 추가
          MemberVO memberVO = memberService.viewMember(userid);
          session.setAttribute("session_username", memberVO.getUser_name());//사용자명
@@ -325,7 +380,7 @@ public class HomeController {
    
    /**
     * Simply selects the home view to render by returning its name.
- * @throws Exception 
+    * @throws Exception 
     */
    @RequestMapping(value = "/", method = RequestMethod.GET)
    public String home(Locale locale, Model model) throws Exception {
@@ -335,33 +390,31 @@ public class HomeController {
       }
       pageVO.setPerPageNum(5);//1페이지당 보여줄 게시물 수 강제지정
       pageVO.setTotalCount(boardService.countBno(pageVO));//강제로 입력한 값을 쿼리로 대체OK.
-      pageVO.setSearchBoard("gallery");
-      List<BoardVO> listGallery = boardService.selectBoard(pageVO);
-      pageVO.setSearchBoard("notice");
-      List<BoardVO> listNotice = boardService.selectBoard(pageVO);
-            //첨부파일 출력때문에 추가 Start -- 갤러리에서만 필요
+      List<BoardVO> list = boardService.selectBoard(pageVO);
+      
+      //첨부파일 출력때문에 추가 Start
       List<BoardVO> boardListFiles = new ArrayList<BoardVO>();
-      for(BoardVO vo:listGallery) {
+
+      for(BoardVO vo:list) {
          List<String> files = boardService.selectAttach(vo.getBno());
          String[] filenames = new String[files.size()];
          int cnt = 0;
          for(String fileName : files) {
             filenames[cnt++] = fileName;
-         }         
-         vo.setFiles(filenames);// 여기까지는 view상세보기와 똑같다.
+         }
+         
+         vo.setFiles(filenames);//여기까지는 view 상세보기와 똑같다
          System.out.println("=====디버그1=====" + filenames);
          System.out.println("=====디버그2=====" + vo);
-         boardListFiles.add(vo); //상세보기에서 추가된 항목
+         boardListFiles.add(vo);//상세보기에서 추가된 항목
       }
       //System.out.println("======디버그3=======" + boardListFiles);
-      model.addAttribute("extNameArray", fileDataUtil.getExtNameArray());//첨부파일이 이미지인지 문서파일인 구분용 jsp변수
+      model.addAttribute("extNameArray", fileDataUtil.getExtNameArray() ); //첨부파일이 이미지인지 문서파일인지 구분용 jsp변수
+      model.addAttribute("boardListFiles", boardListFiles);//첨부파일 출력용 jsp변수
       //첨부파일 출력때문에 추가 End
-      model.addAttribute("boardListGallery", boardListFiles);      
-      model.addAttribute("boardListNotice", listNotice);
+      
+      model.addAttribute("boardList", boardListFiles);      
       return "home";
    }
-
-   
-   
    
 }
