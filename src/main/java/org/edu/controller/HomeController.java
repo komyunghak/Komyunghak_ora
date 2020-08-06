@@ -87,7 +87,7 @@ public class HomeController {
       return "mypage/mypage_update";
    }
    @RequestMapping(value = "/mypage/update", method = RequestMethod.POST)
-   public String memberUpdate(MemberVO memberVO, Locale locale, RedirectAttributes rdat) throws Exception {
+   public String memberUpdate(MemberVO memberVO, Locale locale, RedirectAttributes rdat, HttpServletRequest request) throws Exception {
       String new_pw = memberVO.getUser_pw(); //예를 들면1234
       if(new_pw !="") {
        //스프링 시큐리티 4.x BCryptPasswordEncoder 암호사용
@@ -97,6 +97,9 @@ public class HomeController {
     }
      memberService.updateMember(memberVO);
       rdat.addFlashAttribute("msg", "회원정보 수정");
+      //회원이름 세션변수 변경처리 session_username
+      HttpSession session = request.getSession(); //기존세션값 가져오기
+      session.setAttribute("session_username", memberVO.getUser_name());
       return "redirect:/mypage/update";
    }
    
@@ -370,51 +373,48 @@ public class HomeController {
    }
    
    /**
-    * 샘플 파일 홈 입니다.
-    */
-   @RequestMapping(value = "/sample", method = RequestMethod.GET)
-   public String sample(Locale locale, Model model) {
-      
-      return "sample/home";
-   }
-   
-   /**
-    * Simply selects the home view to render by returning its name.
-    * @throws Exception 
-    */
-   @RequestMapping(value = "/", method = RequestMethod.GET)
-   public String home(Locale locale, Model model) throws Exception {
-      PageVO pageVO = new PageVO();
-      if(pageVO.getPage() == null) {
-         pageVO.setPage(1);//초기 page변수값 지정
-      }
-      pageVO.setPerPageNum(5);//1페이지당 보여줄 게시물 수 강제지정
-      pageVO.setTotalCount(boardService.countBno(pageVO));//강제로 입력한 값을 쿼리로 대체OK.
-      List<BoardVO> list = boardService.selectBoard(pageVO);
-      
-      //첨부파일 출력때문에 추가 Start
-      List<BoardVO> boardListFiles = new ArrayList<BoardVO>();
-
-      for(BoardVO vo:list) {
-         List<String> files = boardService.selectAttach(vo.getBno());
-         String[] filenames = new String[files.size()];
-         int cnt = 0;
-         for(String fileName : files) {
-            filenames[cnt++] = fileName;
-         }
-         
-         vo.setFiles(filenames);//여기까지는 view 상세보기와 똑같다
-         System.out.println("=====디버그1=====" + filenames);
-         System.out.println("=====디버그2=====" + vo);
-         boardListFiles.add(vo);//상세보기에서 추가된 항목
-      }
-      //System.out.println("======디버그3=======" + boardListFiles);
-      model.addAttribute("extNameArray", fileDataUtil.getExtNameArray() ); //첨부파일이 이미지인지 문서파일인지 구분용 jsp변수
-      model.addAttribute("boardListFiles", boardListFiles);//첨부파일 출력용 jsp변수
-      //첨부파일 출력때문에 추가 End
-      
-      model.addAttribute("boardList", boardListFiles);      
-      return "home";
-   }
-   
+	 * 샘플 파일 홈 입니다.
+	 */
+	@RequestMapping(value = "/sample", method = RequestMethod.GET)
+	public String sample(Locale locale, Model model) {
+		
+		return "sample/home";
+	}
+	
+	/**
+	 * Simply selects the home view to render by returning its name.
+	 * @throws Exception 
+	 */
+	@RequestMapping(value = "/", method = RequestMethod.GET)
+	public String home(Locale locale, Model model) throws Exception {
+		PageVO pageVO = new PageVO();
+		if(pageVO.getPage() == null) {
+			pageVO.setPage(1);//초기 page변수값 지정
+		}
+		pageVO.setPerPageNum(5);//1페이지당 보여줄 게시물 수 강제지정
+		pageVO.setTotalCount(boardService.countBno(pageVO));//강제로 입력한 값을 쿼리로 대체OK.
+		
+		pageVO.setSearchBoard("gallery");
+		List<BoardVO> listGallery = boardService.selectBoard(pageVO);
+		pageVO.setSearchBoard("notice");
+		List<BoardVO> listNotice = boardService.selectBoard(pageVO);
+		//첨부파일 출력 때문에 추가 Start -- 갤러리에서만 필요
+		List<BoardVO> boardListFiles = new ArrayList<BoardVO>();
+		for(BoardVO vo:listGallery) {
+			List<String> files = boardService.selectAttach(vo.getBno());
+			String[] filenames = new String[files.size()];
+			int cnt = 0;
+			for(String fileName : files) {
+				filenames[cnt++] = fileName;
+			}
+			vo.setFiles(filenames);//여기까지는 view상세보기와 똑같다
+			boardListFiles.add(vo);//상세보기에서 추가된 항목
+		}
+		model.addAttribute("extNameArray", fileDataUtil.getExtNameArray());//첨부파일이 이미지인지 문서파일인 구분용 jsp변수
+		//첨부파일 출력 때문에 추가 End
+		model.addAttribute("boardListGallery", boardListFiles);
+		model.addAttribute("boardListNotice", listNotice);
+		return "home";
+	}
+	
 }

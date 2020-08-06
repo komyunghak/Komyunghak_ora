@@ -21,14 +21,14 @@
       <div class="bodytext_area box_inner">
          
          <!-- appForm -->
-               <form action="/mypage/update" class="regForm" method="post">
+               <form id="form_mypage" action="/mypage/update" class="regForm" method="POST">
                   <fieldset>
                      <legend>내정보 입력 양식</legend>
                      <ul class="reg_list">
                         <li class="clear">
                            <span class="tit_lbl">아이디</span>
-                           <div class="reg_content" style="padding-top:8px;">${memberVO.user_id}</div>
-                           <input value="" name="user_id" type="hidden" class="w100p" id="name_lbl" placeholder="아이디을 입력해주세요"/>
+                           <div class="reg_content">${memberVO.user_id}</div>
+                           <input value="${memberVO.user_id}" name="user_id" type="hidden" class="w100p" id="name_lbl" placeholder="아이디을 입력해주세요"/>
                         </li>
                         <li class="clear">
                            <label class="tit_lbl">패스워드</label>
@@ -50,27 +50,30 @@
                         </li>
                         <li class="clear">
                            <label class="tit_lbl">포인트</label>
-                           <div class="reg_content" style="padding-top:8px;">
+                           <div class="reg_content" >
                            ${memberVO.point} 
                            <input value="${memberVO.point}" name="point" type="hidden" class="w100p"/>
                            </div>
                         </li>
                         <li class="clear">
                            <label class="tit_lbl">사용여부</label>
-                           <div class="reg_content" style="padding-top:8px;">
+                           <div class="reg_content" >
                            ${memberVO.enabled} 
                            <input value="${memberVO.enabled}" name="enabled" type="hidden" class="w100p"/>
                            </div>
                         </li>
                         <li class="clear">
                            <label class="tit_lbl">회원등급</label>
-                           <div class="reg_content" style="padding-top:8px;">
+                           <div class="reg_content" >
                            ${memberVO.levels }
                            <input value="${memberVO.levels}" name="levels" type="hidden" class="w100p" />
                             </div>
                         </li>
                      </ul>
-                     <p class="btn_line"><button class="btn_baseColor">등록</button></p>   
+                     <p class="btn_line">
+                     <button class="btn_baseColor" style="cursor:pointer">정보수정</button>
+                     <button id="btn_delete" type="button" class="btn_baseColor" style="cursor:pointer">회원탈퇴</button>
+                     </p>   
                   </fieldset>
                </form>
                <!-- //appForm -->
@@ -80,4 +83,15 @@
 
    </div>
    <!-- //container -->
+   <script>
+   $(document).ready(function(){
+     $("#btn_delete").click(function(){
+      if(confirm("정말로 탈퇴하시겠습니까?")){
+         $("#form_mypage").attr("action","/mypage/delete");
+         $("#form_mypage").submit();
+      }  
+     }); 
+   });
+   </script>
+   
 <%@ include file="../include/footer.jsp" %>
