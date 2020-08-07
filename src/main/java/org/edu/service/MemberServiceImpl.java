@@ -47,4 +47,11 @@ public class MemberServiceImpl implements IF_MemberService {
 		return memberDAO.countUserId(pageVO);
 	}
 
+	@Override
+	public List<MemberVO> testJobMethod() throws Exception {
+		//실행 상황 확인
+
+		return memberDAO.testJobMethod();
+	}
+
 }
